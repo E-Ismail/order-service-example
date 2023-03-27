@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * {@code @Date}  3/27/2023
  */
 public interface ProductRepository extends JpaRepository<Product, Long> {
+    Product findByDescription(String description);
 }

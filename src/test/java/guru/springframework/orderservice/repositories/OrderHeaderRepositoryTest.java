@@ -1,12 +1,20 @@
 package guru.springframework.orderservice.repositories;
 
 import guru.springframework.orderservice.domain.OrderHeader;
+import guru.springframework.orderservice.domain.OrderLine;
+import guru.springframework.orderservice.domain.Product;
+import guru.springframework.orderservice.domain.ProductStatus;
+import org.aspectj.weaver.ast.Or;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ActiveProfiles("local")
@@ -16,6 +24,42 @@ class OrderHeaderRepositoryTest {
 
     @Autowired
     OrderHeaderRepository orderHeaderRepository;
+
+    @Autowired
+    ProductRepository productRepository;
+
+    Product product;
+    @BeforeEach
+    void setUp(){
+        Product newProduct= new Product();
+        newProduct.setProductStatus(ProductStatus.NEW);
+        newProduct.setDescription("Test product");
+        product= productRepository.saveAndFlush(newProduct);
+    }
+
+    @Test
+    void testSaverOrderWithLine() {
+        OrderHeader orderHeader = new OrderHeader();
+        orderHeader.setCustomer("New Customer");
+
+        OrderLine orderLine = new OrderLine();
+        orderLine.setQuantityOrdered(5);
+        orderLine.setProduct(product);
+
+        orderHeader.addOrderLine(orderLine);
+
+        OrderHeader savedOrder = orderHeaderRepository.save(orderHeader);
+
+        orderHeaderRepository.flush();
+        assertNotNull(savedOrder);
+        assertNotNull(savedOrder.getId());
+        assertEquals(savedOrder.getOrderLines().size(),1);
+
+        OrderHeader fetchedOrder = orderHeaderRepository.getById(savedOrder.getId());
+
+        assertNotNull(fetchedOrder);
+        assertEquals(fetchedOrder.getOrderLines().size(),1);
+    }
 
     @Test
     void testSaveOrder() {
