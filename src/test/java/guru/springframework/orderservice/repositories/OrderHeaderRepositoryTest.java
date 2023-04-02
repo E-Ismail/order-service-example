@@ -8,9 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ActiveProfiles("local")
@@ -26,6 +24,7 @@ class OrderHeaderRepositoryTest {
 
     @Autowired
     ProductRepository productRepository;
+
 
     Product product;
 
@@ -52,6 +51,11 @@ class OrderHeaderRepositoryTest {
 
         orderHeader.addOrderLine(orderLine);
 
+        OrderApproval approval = new OrderApproval();
+        approval.setApprovedBy("me");
+        //OrderApproval saveApproval = orderApprovalRepository.save(approval);
+        orderHeader.setOrderApproval(approval);
+
         OrderHeader savedOrder = orderHeaderRepository.save(orderHeader);
 
         orderHeaderRepository.flush();
@@ -59,12 +63,12 @@ class OrderHeaderRepositoryTest {
         assertNotNull(savedOrder);
         assertNotNull(savedOrder.getId());
         assertNotNull(savedOrder.getOrderLines());
-        assertEquals(savedOrder.getOrderLines().size(), 1);
+        assertEquals(1, savedOrder.getOrderLines().size());
 
         OrderHeader fetchedOrder = orderHeaderRepository.getById(savedOrder.getId());
 
         assertNotNull(fetchedOrder);
-        assertEquals(fetchedOrder.getOrderLines().size(), 1);
+        assertEquals(1, fetchedOrder.getOrderLines().size());
     }
 
     @Test
