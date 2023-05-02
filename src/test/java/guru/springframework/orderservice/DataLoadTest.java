@@ -38,6 +38,15 @@ public class DataLoadTest {
     @Autowired
     ProductRepository productRepository;
 
+    @Test
+    void testLazyVsEager() {
+        OrderHeader orderHeader = orderHeaderRepository.getById(5L);
+
+        System.out.println("Order Id is:" + orderHeader.getId());// First query will run here
+
+        System.out.println("Customer Name is:" + orderHeader.getCustomer().getCustomerName());//Second query bcs mapping changed to lazy
+    }
+
     @Disabled
     @Rollback(value = false)
     @Test
@@ -55,7 +64,7 @@ public class DataLoadTest {
         orderHeaderRepository.flush();
     }
 
-    private OrderHeader saveOrder(Customer customer, List<Product> products){
+    private void saveOrder(Customer customer, List<Product> products) {
         Random random = new Random();
 
         OrderHeader orderHeader = new OrderHeader();
@@ -65,10 +74,10 @@ public class DataLoadTest {
             OrderLine orderLine = new OrderLine();
             orderLine.setProduct(product);
             orderLine.setQuantityOrdered(random.nextInt(20));
-            orderHeader.getOrderLines().add(orderLine);
+            orderHeader.addOrderLine(orderLine);
         });
 
-        return orderHeaderRepository.save(orderHeader);
+        orderHeaderRepository.save(orderHeader);
     }
 
     private Customer loadCustomers() {

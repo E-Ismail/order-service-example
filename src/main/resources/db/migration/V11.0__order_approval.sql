@@ -4,7 +4,7 @@ create table order_approval
     approved_by        varchar(50),
     created_date       timestamp,
     last_modified_date timestamp
-);
+) engine = InnoDB;
 
 alter table order_header
     add column order_approval_id bigint;

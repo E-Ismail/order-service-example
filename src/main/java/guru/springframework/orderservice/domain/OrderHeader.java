@@ -1,8 +1,9 @@
 package guru.springframework.orderservice.domain;
 
+import jakarta.persistence.*;
+
 import java.util.HashSet;
 import java.util.Set;
-import jakarta.persistence.*;
 
 /**
  * Created by jt on 12/5/21.
@@ -44,7 +45,7 @@ import jakarta.persistence.*;
 })
 public class OrderHeader extends BaseEntity {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Customer customer;
 
     @Embedded
@@ -57,7 +58,7 @@ public class OrderHeader extends BaseEntity {
     private OrderStatus orderStatus;
 
     @OneToMany(mappedBy = "orderHeader", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private Set<OrderLine> orderLines = new HashSet<>();
+    private Set<OrderLine> orderLines;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, mappedBy = "orderHeader")
     private OrderApproval orderApproval;
