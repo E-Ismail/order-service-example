@@ -13,8 +13,10 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
+import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Created by jt on 5/28/22.
@@ -39,6 +41,31 @@ public class DataLoadTest {
     ProductRepository productRepository;
 
     @Test
+    void testDBLock() {
+        Long id = 1L;
+        OrderHeader orderHeader = orderHeaderRepository.findById(id).get();
+
+        Address billTo = new Address();
+        billTo.setAddress("Bill me");
+        orderHeader.setBillToAddress(billTo);
+        orderHeaderRepository.saveAndFlush(orderHeader);
+
+        System.out.println("I updated the order");
+    }
+
+    @Test
+    void testN_PlusProblem() {
+        //from 23s to 1s !
+        Customer customer = customerRepository.findCustomerByCustomerNameIgnoreCase(TEST_CUSTOMER).get();
+
+        IntSummaryStatistics totalOrdered = orderHeaderRepository.findAllByCustomer(customer).stream()
+                .flatMap(orderHeader -> orderHeader.getOrderLines().stream())
+                .collect(Collectors.summarizingInt(OrderLine::getQuantityOrdered));
+
+        System.out.println("Total Ordered: " + totalOrdered.getSum());
+    }
+
+    @Test
     void testLazyVsEager() {
         OrderHeader orderHeader = orderHeaderRepository.getById(5L);
 
@@ -54,9 +81,9 @@ public class DataLoadTest {
         List<Product> products = loadProducts();
         Customer customer = loadCustomers();
 
-        int ordersToCreate = 100;
+        int ordersToCreate = 20000;
 
-        for (int i = 0; i < ordersToCreate; i++){
+        for (int i = 0; i < ordersToCreate; i++) {
             System.out.println("Creating order #: " + i);
             saveOrder(customer, products);
         }
@@ -98,7 +125,8 @@ public class DataLoadTest {
                     return customerRepository.save(c1);
                 });
     }
-    private List<Product> loadProducts(){
+
+    private List<Product> loadProducts() {
         List<Product> products = new ArrayList<>();
 
         products.add(getOrSaveProduct(PRODUCT_D1));
@@ -107,6 +135,7 @@ public class DataLoadTest {
 
         return products;
     }
+
     private Product getOrSaveProduct(String description) {
         return productRepository.findByDescription(description)
                 .orElseGet(() -> {
