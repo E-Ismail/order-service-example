@@ -1,6 +1,7 @@
 package guru.springframework.orderservice.repositories;
 
 import guru.springframework.orderservice.domain.*;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,10 +9,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ActiveProfiles("local")
 @DataJpaTest
@@ -66,7 +64,7 @@ class OrderHeaderRepositoryTest {
         assertNotNull(savedOrder.getOrderLines());
         assertEquals(savedOrder.getOrderLines().size(), 1);
 
-        OrderHeader fetchedOrder = orderHeaderRepository.getById(savedOrder.getId());
+        OrderHeader fetchedOrder = orderHeaderRepository.getReferenceById(savedOrder.getId());
 
         assertNotNull(fetchedOrder);
         assertEquals(fetchedOrder.getOrderLines().size(), 1);
@@ -85,7 +83,7 @@ class OrderHeaderRepositoryTest {
         assertNotNull(savedOrder);
         assertNotNull(savedOrder.getId());
 
-        OrderHeader fetchedOrder = orderHeaderRepository.getById(savedOrder.getId());
+        OrderHeader fetchedOrder = orderHeaderRepository.getReferenceById(savedOrder.getId());
 
         assertNotNull(fetchedOrder);
         assertNotNull(fetchedOrder.getId());
@@ -118,7 +116,7 @@ class OrderHeaderRepositoryTest {
         orderHeaderRepository.flush();
 
         assertThrows(EntityNotFoundException.class, () -> {
-            OrderHeader fetchedOrder = orderHeaderRepository.getById(savedOrder.getId());
+            OrderHeader fetchedOrder = orderHeaderRepository.getReferenceById(savedOrder.getId());
 
             assertNull(fetchedOrder);
         });
