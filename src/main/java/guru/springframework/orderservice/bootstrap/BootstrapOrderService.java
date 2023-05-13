@@ -19,6 +19,7 @@ public class BootstrapOrderService {
 
     @Transactional
     public void readOrderData() {
+        //This is the problem in read-only situation
         OrderHeader orderHeader = orderHeaderRepository.findById(1L).get();
         orderHeader.getOrderLines().forEach(orderLine -> {
             System.out.println(orderLine.getProduct().getDescription());

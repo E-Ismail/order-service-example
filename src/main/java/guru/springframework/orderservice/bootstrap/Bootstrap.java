@@ -1,9 +1,11 @@
 package guru.springframework.orderservice.bootstrap;
 
 import guru.springframework.orderservice.domain.Customer;
+import guru.springframework.orderservice.domain.Product;
+import guru.springframework.orderservice.domain.ProductStatus;
 import guru.springframework.orderservice.repositories.CustomerRepository;
 import guru.springframework.orderservice.repositories.OrderHeaderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import guru.springframework.orderservice.services.ProductService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -15,14 +17,36 @@ import org.springframework.stereotype.Component;
 @Component
 public class Bootstrap implements CommandLineRunner {
 
-    @Autowired
-    OrderHeaderRepository orderHeaderRepository;
 
-    @Autowired
-    CustomerRepository customerRepository;
+    private final OrderHeaderRepository orderHeaderRepository;
+    private final CustomerRepository customerRepository;
 
-    @Autowired
-    BootstrapOrderService bootstrapOrderService;
+    private final ProductService productService;
+
+    private final BootstrapOrderService bootstrapOrderService;
+
+    public Bootstrap(OrderHeaderRepository orderHeaderRepository, CustomerRepository customerRepository, ProductService productService, BootstrapOrderService bootstrapOrderService) {
+        this.orderHeaderRepository = orderHeaderRepository;
+        this.customerRepository = customerRepository;
+        this.productService = productService;
+        this.bootstrapOrderService = bootstrapOrderService;
+    }
+
+    private void updateProduct() {
+        Product product = new Product();
+        product.setDescription("My Product");
+        product.setProductStatus(ProductStatus.NEW);
+
+        Product savedProduct = productService.saveProduct(product);
+
+        //savedProduct.setQuantityOnHand(25);
+
+        Product savedProduct2 = productService.updateQOH(savedProduct.getId(), 25);
+
+        System.out.println("Update Qty: " + savedProduct2.getQuantityOnHand());
+    }
+
+
     //@Transactional will fail bcs of lazily initialization ...
     // see spring docs: Because of proxy method
 //    public void readOrderData() {
@@ -40,6 +64,9 @@ public class Bootstrap implements CommandLineRunner {
     @Override
     //Internal call
     public void run(String... args) throws Exception {
+
+        updateProduct();
+
         //external call of readOrderData() cause to be around the proxy
         bootstrapOrderService.readOrderData();
 

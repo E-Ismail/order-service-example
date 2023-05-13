@@ -2,6 +2,7 @@ package guru.springframework.orderservice.services;
 
 import guru.springframework.orderservice.domain.Product;
 import guru.springframework.orderservice.repositories.ProductRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,6 +26,7 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.saveAndFlush(product);
     }
 
+    @Transactional
     @Override
     public Product updateQOH(Long id, Integer quantityOnHand) {
         Product product = productRepository.findById(id).orElseThrow();
