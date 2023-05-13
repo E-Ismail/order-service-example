@@ -2,6 +2,7 @@ package guru.springframework.orderservice.repositories;
 
 import guru.springframework.orderservice.domain.*;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("local")
@@ -33,6 +35,20 @@ class OrderHeaderRepositoryTest {
         newProduct.setProductStatus(ProductStatus.NEW);
         newProduct.setDescription("test product");
         product = productRepository.saveAndFlush(newProduct);
+    }
+
+    @Test
+    void constraintValidation() {
+        Customer customer = new Customer();
+        customer.setCustomerName("New Customer01234567890123456789012345678901234567890123456789");
+        assertThrows(ConstraintViolationException.class, () -> customerRepository.save(customer));
+        customer.setCustomerName("New Customer");
+        customer.setPhone("0123456789");
+        Address address = new Address();
+        address.setCity("Orlando ");
+        customer.setAddress(address);
+        Customer customer1 = customerRepository.save(customer);
+        assertThat(customer1).isNotNull();
     }
 
     @Test
@@ -77,7 +93,7 @@ class OrderHeaderRepositoryTest {
         customer.setCustomerName("New Customer");
         customer.setPhone("0123456789");
         Address address = new Address();
-        address.setCity("0123456789012345678901234567890123456789");
+        address.setCity("Orlando ");
         customer.setAddress(address);
         Customer savedCustomer = customerRepository.save(customer);
 
