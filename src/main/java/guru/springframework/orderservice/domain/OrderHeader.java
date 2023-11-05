@@ -64,7 +64,7 @@ public class OrderHeader extends BaseEntity {
     private Set<OrderLine> orderLines;
 
     // @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, mappedBy = "orderHeader")
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true, mappedBy = "orderHeader")
     @Fetch(FetchMode.SELECT)
     private OrderApproval orderApproval;
 

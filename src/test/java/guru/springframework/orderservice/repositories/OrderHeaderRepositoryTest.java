@@ -65,7 +65,7 @@ class OrderHeaderRepositoryTest {
         orderLine.setProduct(product);
 
         orderHeader.addOrderLine(orderLine);
-
+        orderLine.setOrderHeader(orderHeader);
         OrderApproval approval = new OrderApproval();
         approval.setApprovedBy("me");
 
